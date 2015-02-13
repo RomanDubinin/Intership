@@ -21,29 +21,29 @@ namespace battleships
 		{
 			var map = game.Map;
 			var sb = new StringBuilder();
-			for (var y = 0; y < map.Height; y++)
+			for (var y = 0; y < map.MapHeight; y++)
 			{
-				for (var x = 0; x < map.Width; x++)
+				for (var x = 0; x < map.MapWidth; x++)
 					sb.Append(GetSymbol(map[new Vector(x, y)]));
 				sb.AppendLine();
 			}
 			return sb.ToString();
 		}
 
-		private string GetSymbol(MapCell cell)
+		private string GetSymbol(CellState cellState)
 		{
-			switch (cell)
+			switch (cellState)
 			{
-				case MapCell.Empty:
+				case CellState.Empty:
 					return " ";
-				case MapCell.Miss:
+				case CellState.Miss:
 					return "*";
-				case MapCell.Ship:
+				case CellState.Ship:
 					return "O";
-				case MapCell.DeadOrWoundedShip:
+				case CellState.DeadOrWoundedShip:
 					return "X";
 				default:
-					throw new Exception(cell.ToString());
+					throw new Exception(cellState.ToString());
 			}
 		}
 	}

@@ -52,7 +52,9 @@ namespace battleships
 
 		private void Inspect(Process process)
 		{
-			if (process.HasExited) processes.Remove(process);
+			if (process.HasExited) 
+				processes.Remove(process);
+
 			else
 			{
 				CheckParameter(process.TotalProcessorTime, timeLimit, process, "TimeLimit");
@@ -62,7 +64,9 @@ namespace battleships
 
 		private void CheckParameter<T>(T param, T limit, Process process, string message) where T : IComparable<T>
 		{
-			if (param.CompareTo(limit) <= 0) return;
+			if (param.CompareTo(limit) <= 0) 
+				return;
+
 			log.Error(message + " {0}: {1}", process.ProcessName, param);
 			process.Kill();
 			processes.Remove(process);
