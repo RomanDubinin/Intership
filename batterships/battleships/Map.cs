@@ -24,6 +24,11 @@ namespace battleships
 
 	public class Ship
 	{
+		public Vector ShipLocation { get; private set; }
+		public int ShipSize { get; private set; }
+		public bool DirectionIsHorizont { get; private set; }
+		public HashSet<Vector> AliveCells { get; private set; }
+		
 		public Ship(Vector shipLocation, int shipSize, bool directionIsHorizont)
 		{
 			ShipLocation = shipLocation;
@@ -49,10 +54,7 @@ namespace battleships
 		{
 			get { return AliveCells.Any(); }
 		}
-		public Vector ShipLocation { get; private set; }
-		public int ShipSize { get; private set; }
-		public bool DirectionIsHorizont { get; private set; }
-		public HashSet<Vector> AliveCells { get; private set; }
+		
 	}
 
 
@@ -62,33 +64,32 @@ namespace battleships
 
 	public class Map
 	{
-		private static CellState[,] _cellsState;
-		public static Ship[,] shipsMap;
+		private static CellState[,] StatesMap;
+		public static Ship[,] ShipsMap;
+		
+		public List<Ship> Ships = new List<Ship>();
+		public int MapWidth { get; private set; }
+		public int MapHeight { get; private set; }
 
-		///<summary>Конструктор</summary>
 		public Map(int mapWidth, int mapHeight)
 		{
 			MapWidth = mapWidth;
 			MapHeight = mapHeight;
-			_cellsState = new CellState[mapWidth, mapHeight];
-			shipsMap = new Ship[mapWidth, mapHeight];
+			StatesMap = new CellState[mapWidth, mapHeight];
+			ShipsMap = new Ship[mapWidth, mapHeight];
 		}
-
-		public List<Ship> Ships = new List<Ship>();
-		public int MapWidth { get; private set; }
-		public int MapHeight { get; private set; }
 
 		public CellState this[Vector p]
 		{
 			get
 			{
-				return CheckBounds(p) ? _cellsState[p.X, p.Y] : CellState.Empty; // Благодаря этому трюку иногда можно будет не проверять на выход за пределы поля. 
+				return CheckBounds(p) ? StatesMap[p.X, p.Y] : CellState.Empty; // Благодаря этому трюку иногда можно будет не проверять на выход за пределы поля. 
 			}
 			private set
 			{
 				if (!CheckBounds(p))
 					throw new IndexOutOfRangeException(p + " is not in the map borders"); // Поможет отлавливать ошибки в коде.
-				_cellsState[p.X, p.Y] = value;
+				StatesMap[p.X, p.Y] = value;
 			}
 		}
 
@@ -98,7 +99,7 @@ namespace battleships
 			var ship = new Ship(v, n, direction);
 			var shipCells = ship.GetShipCells();
 			//Если рядом есть непустая клетка, то поместить корабль нельзя!
-			if (shipCells.SelectMany(Near).Any(c => this[c] != CellState.Empty)) return false;
+			if (shipCells.SelectMany(Neighbours).Any(c => this[c] != CellState.Empty)) return false;
 			//Если корабль не помещается — тоже нельзя
 			if (!shipCells.All(CheckBounds)) return false;
 
@@ -106,7 +107,7 @@ namespace battleships
 			foreach (var cell in shipCells)
 				{
 					this[cell] = CellState.Ship;
-					shipsMap[cell.X, cell.Y] = ship;
+					ShipsMap[cell.X, cell.Y] = ship;
 				}
 			Ships.Add(ship);
 			return true;
@@ -120,7 +121,7 @@ namespace battleships
 			
 			if (hit)
 			{
-				var ship = shipsMap[target.X, target.Y];
+				var ship = ShipsMap[target.X, target.Y];
 				ship.AliveCells.Remove(target);
 				this[target] = CellState.DeadOrWoundedShip;
 				return ship.IsAlive ? ShotEffct.Wound : ShotEffct.Kill;
@@ -131,32 +132,27 @@ namespace battleships
 			return ShotEffct.Miss;
 		}
 
-		///<summary>Окрестность ячейки</summary>
-		public IEnumerable<Vector> Near(Vector cell)
+		public IEnumerable<Vector> Neighbours(Vector cell)
 		{
 			return
-				from i in new[] {-1, 0, 1} //x
-				from j in new[] {-1, 0, 1} //y
-				let c = cell.Add(new Vector(i, j))
+				from x in new[] {-1, 0, 1} 
+				from y in new[] {-1, 0, 1} 
+				let c = cell.Add(new Vector(x, y))
 				where CheckBounds(c)
 				select c;
 		}
 
-		///<summary>Проверка на выход за границы</summary>
 		public bool CheckBounds(Vector p)
 		{
-			return p.X >= 0 && p.X < MapWidth && p.Y >= 0 && p.Y < MapHeight;
+			return p.X >= 0 && 
+				   p.X < MapWidth && 
+				   p.Y >= 0 && 
+				   p.Y < MapHeight;
 		}
-		
-		///<summary>Есть ли хоть одна живая клетка</summary>
+
 		public bool HasAliveShips()
 		{
-			for (int index = 0; index < Ships.Count; index++)
-			{
-				var s = Ships[index];
-				if (s.IsAlive) return true;
-			}
-			return false;
+			return Ships.Any(s => s.IsAlive);
 		}
 	}
 }
