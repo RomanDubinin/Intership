@@ -58,10 +58,6 @@ namespace battleships
 	}
 
 
-	/////////////////////////////////////////////////////////////////////////////////////////////////
-	/// Карта
-	/////////////////////////////////////////////////////////////////////////////////////////////////
-
 	public class Map
 	{
 		private static CellState[,] StatesMap;
@@ -82,45 +78,51 @@ namespace battleships
 		{
 			get
 			{
-				if (!CheckBounds(p))
+				if (!InMapBounds(p))
 					throw new IndexOutOfRangeException(p + " is not in the map borders");
 				return StatesMap[p.X, p.Y];
 			}
 			private set
 			{
-				if (!CheckBounds(p))
+				if (!InMapBounds(p))
 					throw new IndexOutOfRangeException(p + " is not in the map borders");
 				StatesMap[p.X, p.Y] = value;
 			}
 		}
 
-		///<summary>Помещает корабль длинной i в точку v, смотрящий в направлении d</summary>
-		public bool Set(Vector v, int n, bool direction)
+		public bool Set(Vector shipLocation, int shipSize, bool directionIsHorizont)
 		{
-			var ship = new Ship(v, n, direction);
-			var shipCells = ship.GetShipCells();
-			//Если рядом есть непустая клетка, то поместить корабль нельзя!
-			if (shipCells.SelectMany(Neighbours).Any(c => this[c] != CellState.Empty)) return false;
-			//Если корабль не помещается — тоже нельзя
-			if (!shipCells.All(CheckBounds)) return false;
+			var ship = new Ship(shipLocation, shipSize, directionIsHorizont);
 
-			// Иначе, ставим корабль
+			if (!CanSetShip(ship)) 
+				return false;
+
+			var shipCells = ship.GetShipCells();
 			foreach (var cell in shipCells)
-				{
-					this[cell] = CellState.Ship;
-					ShipsMap[cell.X, cell.Y] = ship;
-				}
+			{
+				this[cell] = CellState.Ship;
+				ShipsMap[cell.X, cell.Y] = ship;
+			}
 			Ships.Add(ship);
 			return true;
 		}
 
-		///<summary>Бойтесь все!!!</summary>
+		public bool CanSetShip(Ship ship)
+		{
+			var shipCells = ship.GetShipCells();
+
+			if (shipCells.SelectMany(Neighbours).Any(c => this[c] != CellState.Empty))
+				return false;
+
+			if (!shipCells.All(InMapBounds))
+				return false;
+
+			return true;
+		}
+
 		public ShotEffect Badaboom(Vector target)
 		{
-			var hit = CheckBounds(target) && this[target] == CellState.Ship;
-			
-			
-			if (hit)
+			if (this[target] == CellState.Ship)
 			{
 				var ship = ShipsMap[target.X, target.Y];
 				ship.AliveCells.Remove(target);
@@ -128,8 +130,9 @@ namespace battleships
 				return ship.IsAlive ? ShotEffect.Wound : ShotEffect.Kill;
 			}
 
+			if (this[target] == CellState.Empty) 
+				this[target] = CellState.Miss;
 
-			if (this[target] == CellState.Empty) this[target] = CellState.Miss;
 			return ShotEffect.Miss;
 		}
 
@@ -139,11 +142,11 @@ namespace battleships
 				from x in new[] {-1, 0, 1} 
 				from y in new[] {-1, 0, 1} 
 				let c = cell.Add(new Vector(x, y))
-				where CheckBounds(c)
+				where InMapBounds(c)
 				select c;
 		}
 
-		public bool CheckBounds(Vector p)
+		public bool InMapBounds(Vector p)
 		{
 			return p.X >= 0 && 
 				   p.X < MapWidth && 

@@ -73,7 +73,7 @@ namespace battleships
 			var cellIsNearDestroyedShip = Map.Neighbours(target).Any(c => Map.ShipsMap[c.X, c.Y] != null && !Map.ShipsMap[c.X, c.Y].IsAlive);
 			var diagonals = new[] { new Vector(-1, -1), new Vector(-1, 1), new Vector(1, -1), new Vector(1, 1) };
 			var cellHaveWoundedDiagonalNeighbour = diagonals
-				.Where(d => Map.CheckBounds(target.Add(d)))
+				.Where(d => Map.InMapBounds(target.Add(d)))
 				.Any(d => Map[target.Add(d)] == CellState.DeadOrWoundedShip);
 
 			return cellWasHitAlready || cellIsNearDestroyedShip || cellHaveWoundedDiagonalNeighbour;
