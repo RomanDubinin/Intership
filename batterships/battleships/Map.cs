@@ -15,7 +15,7 @@ namespace battleships
 		Miss
 	}
 
-	public enum ShotEffct
+	public enum ShotEffect
 	{
 		Miss,
 		Wound,
@@ -66,7 +66,6 @@ namespace battleships
 	{
 		private static CellState[,] StatesMap;
 		public static Ship[,] ShipsMap;
-		
 		public List<Ship> Ships = new List<Ship>();
 		public int MapWidth { get; private set; }
 		public int MapHeight { get; private set; }
@@ -83,12 +82,14 @@ namespace battleships
 		{
 			get
 			{
-				return CheckBounds(p) ? StatesMap[p.X, p.Y] : CellState.Empty; // Благодаря этому трюку иногда можно будет не проверять на выход за пределы поля. 
+				if (!CheckBounds(p))
+					throw new IndexOutOfRangeException(p + " is not in the map borders");
+				return StatesMap[p.X, p.Y];
 			}
 			private set
 			{
 				if (!CheckBounds(p))
-					throw new IndexOutOfRangeException(p + " is not in the map borders"); // Поможет отлавливать ошибки в коде.
+					throw new IndexOutOfRangeException(p + " is not in the map borders");
 				StatesMap[p.X, p.Y] = value;
 			}
 		}
@@ -114,7 +115,7 @@ namespace battleships
 		}
 
 		///<summary>Бойтесь все!!!</summary>
-		public ShotEffct Badaboom(Vector target)
+		public ShotEffect Badaboom(Vector target)
 		{
 			var hit = CheckBounds(target) && this[target] == CellState.Ship;
 			
@@ -124,12 +125,12 @@ namespace battleships
 				var ship = ShipsMap[target.X, target.Y];
 				ship.AliveCells.Remove(target);
 				this[target] = CellState.DeadOrWoundedShip;
-				return ship.IsAlive ? ShotEffct.Wound : ShotEffct.Kill;
+				return ship.IsAlive ? ShotEffect.Wound : ShotEffect.Kill;
 			}
 
 
 			if (this[target] == CellState.Empty) this[target] = CellState.Miss;
-			return ShotEffct.Miss;
+			return ShotEffect.Miss;
 		}
 
 		public IEnumerable<Vector> Neighbours(Vector cell)

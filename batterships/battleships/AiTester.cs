@@ -36,11 +36,13 @@ namespace battleships
 				if (game.AiCrashed)
 				{
 					crashes++;
-					if (crashes > settings.CrashLimit) break;
+					if (crashes > settings.CrashLimit) 
+						break;
 					ai = new Ai(exe, monitor);
 				}
 				else
 					shots.Add(game.TurnsCount);
+
 				if (settings.Verbose)
 				{
 					Console.WriteLine(

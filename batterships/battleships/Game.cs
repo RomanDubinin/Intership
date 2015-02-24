@@ -6,7 +6,7 @@ namespace battleships
 {
 	public class ShotInfo
 	{
-		public ShotEffct Hit;
+		public ShotEffect Hit;
 		public Vector Target;
 	}
 
@@ -44,7 +44,7 @@ namespace battleships
 			if (IsBadShot(LastTarget)) BadShots++;
 			var hit = Map.Badaboom(LastTarget);
 			LastShotInfo = new ShotInfo {Target = LastTarget, Hit = hit};
-			if (hit == ShotEffct.Miss)
+			if (hit == ShotEffect.Miss)
 				TurnsCount++;
 		}
 
@@ -72,7 +72,10 @@ namespace battleships
 			var cellWasHitAlready = Map[target] != CellState.Empty && Map[target] != CellState.Ship;
 			var cellIsNearDestroyedShip = Map.Neighbours(target).Any(c => Map.ShipsMap[c.X, c.Y] != null && !Map.ShipsMap[c.X, c.Y].IsAlive);
 			var diagonals = new[] { new Vector(-1, -1), new Vector(-1, 1), new Vector(1, -1), new Vector(1, 1) };
-			var cellHaveWoundedDiagonalNeighbour = diagonals.Any(d => Map[target.Add(d)] == CellState.DeadOrWoundedShip);
+			var cellHaveWoundedDiagonalNeighbour = diagonals
+				.Where(d => Map.CheckBounds(target.Add(d)))
+				.Any(d => Map[target.Add(d)] == CellState.DeadOrWoundedShip);
+
 			return cellWasHitAlready || cellIsNearDestroyedShip || cellHaveWoundedDiagonalNeighbour;
 		}
 	}
