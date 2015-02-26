@@ -42,7 +42,7 @@ namespace battleships
 		{
 			var shipDirectionVector = DirectionIsHorizont ? new Vector(1, 0) : new Vector(0, 1);
 			var shipCells = new List<Vector>();
-			for (int i = 0; i < ShipSize; i++)
+			for (var i = 0; i < ShipSize; i++)
 			{
 				var shipCell = shipDirectionVector.Mult(i).Add(ShipLocation);
 				shipCells.Add(shipCell);
