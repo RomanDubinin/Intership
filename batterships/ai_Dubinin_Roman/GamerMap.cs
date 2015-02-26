@@ -43,11 +43,10 @@ namespace ai_Dubinin_Roman
 
 		public IEnumerable<Vector> Neighbours(Vector cell)
 		{
-			return
-				from v in new[] { new Vector(0, -1), new Vector(-1, 0), new Vector(0, 1), new Vector(1, 0) }
-				let c = cell.Add(v)
-				where InMapBounds(c)
-				select c;
+			return 
+				new[] {new Vector(0, -1), new Vector(-1, 0), new Vector(0, 1), new Vector(1, 0)}
+				.Select(cell.Add)
+				.Where(InMapBounds);
 		}
 
 		public bool InMapBounds(Vector p)

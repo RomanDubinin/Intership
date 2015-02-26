@@ -53,11 +53,26 @@ namespace ai_Dubinin_Roman
 			return potentialCells.First();
 		}
 
+		public IEnumerable<Vector> Diagonals(Vector cell)
+		{
+			return
+				new[] { new Vector(-1, -1), new Vector(-1, 1), new Vector(1, 1), new Vector(1, -1) }
+				.Select(cell.Add)
+				.Where(Map.InMapBounds);
+		}
+
 		private void LeadRoundDeadShip(Vector cell)
 		{
 			Map[cell] = CellState.Dead;
 			foreach (var emptyNeighbour in EmptyNeighbours(cell))
 				Map[emptyNeighbour] = CellState.Miss;
+
+			foreach (var DiagonalNeighbour in Diagonals(cell))
+			{
+				if(Map[DiagonalNeighbour] == CellState.Eempty)
+					Map[DiagonalNeighbour] = CellState.Miss;
+			}
+
 			foreach (var woundedNeighbour in WoundedNeighbours(cell))
 				LeadRoundDeadShip(woundedNeighbour);
 		}
