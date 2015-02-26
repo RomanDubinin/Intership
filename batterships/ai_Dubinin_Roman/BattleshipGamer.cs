@@ -9,11 +9,17 @@ namespace ai_Dubinin_Roman
 	{
 		private readonly GamerMap Map;
 		private readonly Random Random;
+		private int CurrentX;
+		private int CurrentY;
+		private int CurrentStep;
 
 		public BattleshipGamer(int mapWidth, int mapHeight)
 		{
 			Map = new GamerMap(mapWidth, mapHeight);
 			Random = new Random();
+			CurrentX = 0;
+			CurrentY = 0;
+			CurrentStep = Map.MapWidth/5 - 1;
 		}
 
 		public Vector GetNextCell()
@@ -37,7 +43,6 @@ namespace ai_Dubinin_Roman
 				return ChoiseNextEmptyCell();
 
 			var potentialCells = woundedCells
-				.Where(cell => WoundedNeighbours(cell).Any())
 				.SelectMany(NextTargets)
 				.Where(Map.InMapBounds)
 				.Where(CellIsEmpty);
@@ -72,6 +77,31 @@ namespace ai_Dubinin_Roman
 		}
 
 		private Vector ChoiseNextEmptyCell()
+		{
+			for (var step = CurrentStep; step > 0; step--)
+			{
+				for (var y = CurrentY; y < Map.MapHeight; y += 1)
+				{
+					for (var x = CurrentX; x < Map.MapWidth; x += step)
+					{
+						var currentCell = new Vector(x, y);
+						if (CellIsEmpty(currentCell))
+						{
+							CurrentStep = step;
+							CurrentX = x;
+							CurrentY = y;
+							return currentCell;
+						}
+					}
+					CurrentX = step/2*((y+1) % 2);
+				}
+
+				CurrentY = 0;
+			}
+			return new Vector(0, 0);
+		}
+
+		private Vector ChoiseNextEmptyCellRandom()
 		{
 			var nextCell = new Vector(Random.Next(Map.MapWidth), Random.Next(Map.MapHeight));
 			while (Map[nextCell] != CellState.Eempty)
