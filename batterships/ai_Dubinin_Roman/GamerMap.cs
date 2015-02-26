@@ -22,6 +22,7 @@ namespace ai_Dubinin_Roman
 		{
 			MapWidth = mapWidth;
 			MapHeight = mapHeight;
+			StatesMap = new CellState[mapWidth, mapHeight];
 		}
 
 		public CellState this[Vector p]
@@ -43,9 +44,9 @@ namespace ai_Dubinin_Roman
 		public IEnumerable<Vector> Neighbours(Vector cell)
 		{
 			return
-				from x in new[] { -1, 0, 1 }
-				from y in new[] { -1, 0, 1 }
-				let c = cell.Add(new Vector(x, y))
+				from v in new[] { new Vector(0, -1), new Vector(-1, 0), new Vector(0, 1), new Vector(1, 0) }
+				let c = cell.Add(v)
+				where !Equals(c, cell)
 				where InMapBounds(c)
 				select c;
 		}

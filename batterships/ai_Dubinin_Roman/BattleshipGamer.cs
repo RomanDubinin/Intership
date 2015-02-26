@@ -16,6 +16,11 @@ namespace ai_Dubinin_Roman
 			Random = new Random();
 		}
 
+		public Vector GetNextCell()
+		{
+			return ChoiseNextEmptyCell();
+		}
+
 		public Vector GetNextCell(Vector lastCell, ShotEffect lastEffect)
 		{
 			if(lastEffect == ShotEffect.Miss)
@@ -27,16 +32,23 @@ namespace ai_Dubinin_Roman
 
 			var edgeWoundedCells = Vector.Rect(0, 0, Map.MapWidth, Map.MapHeight)
 				.Where(cell => Map[cell] == CellState.Wounded)
-				.Where(cell => Map.Neighbours(cell).Count(CellIsWounded) == 1);
+				.Where(cell => Map.Neighbours(cell).Count(CellIsWounded) <= 1);
 
 			if (!edgeWoundedCells.Any())
 				return ChoiseNextEmptyCell();
 
 			var potentialCells = edgeWoundedCells
-				.Select(cell => cell.Sub(DifferenceVector(cell, WoundedNeighbour(cell))));
+				.Where(cell => WoundedNeighbours(cell).Any())
+				.Select(cell => cell.Add(DifferenceVector(cell, WoundedNeighbour(cell))))
+				.Where(Map.InMapBounds)
+				.Where(cell => Map[cell] == CellState.Eempty);
 
 			if (!potentialCells.Any())
-				return ChoiseNextEmptyCell();
+			{
+				var a = Map.Neighbours(edgeWoundedCells.First())
+					.Where(neighbour => Map[neighbour] == CellState.Eempty);
+				return a.First();
+			}
 
 			return potentialCells.First();
 		}
