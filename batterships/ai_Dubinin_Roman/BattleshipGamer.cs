@@ -30,61 +30,45 @@ namespace ai_Dubinin_Roman
 			if (lastEffect == ShotEffect.Kill)
 				LeadRoundDeadShip(lastCell);
 
-			var edgeWoundedCells = Vector.Rect(0, 0, Map.MapWidth, Map.MapHeight)
-				.Where(cell => Map[cell] == CellState.Wounded)
-				.Where(cell => Map.Neighbours(cell).Count(CellIsWounded) <= 1);
+			var woundedCells = Vector.Rect(0, 0, Map.MapWidth, Map.MapHeight)
+				.Where(CellIsWounded);
 
-			if (!edgeWoundedCells.Any())
+			if (!woundedCells.Any())
 				return ChoiseNextEmptyCell();
 
-			var potentialCells = edgeWoundedCells
+			var potentialCells = woundedCells
 				.Where(cell => WoundedNeighbours(cell).Any())
-				.Select(cell => cell.Add(DifferenceVector(cell, WoundedNeighbour(cell))))
+				.SelectMany(NextTargets)
 				.Where(Map.InMapBounds)
-				.Where(cell => Map[cell] == CellState.Eempty);
-
-			if (!potentialCells.Any())
-			{
-				var a = Map.Neighbours(edgeWoundedCells.First())
-					.Where(neighbour => Map[neighbour] == CellState.Eempty);
-				return a.First();
-			}
+				.Where(CellIsEmpty);
 
 			return potentialCells.First();
 		}
 
-		public IEnumerable<Vector> Diagonals(Vector cell)
+		private IEnumerable<Vector> NextTargets(Vector cell)
 		{
-			return
-				new[] { new Vector(-1, -1), new Vector(-1, 1), new Vector(1, 1), new Vector(1, -1) }
-				.Select(cell.Add)
-				.Where(Map.InMapBounds);
+			if (WoundedNeighbours(cell).Any())
+				return WoundedNeighbours(cell)
+					.Select(neighbour => cell.Add(DifferenceVector(cell, neighbour)));
+
+			return Map.Neighbours(cell).
+				Where(CellIsEmpty);
+
 		}
+
 
 		private void LeadRoundDeadShip(Vector cell)
 		{
 			Map[cell] = CellState.Dead;
+
 			foreach (var emptyNeighbour in EmptyNeighbours(cell))
 				Map[emptyNeighbour] = CellState.Miss;
 
-			foreach (var DiagonalNeighbour in Diagonals(cell))
-			{
-				if(Map[DiagonalNeighbour] == CellState.Eempty)
-					Map[DiagonalNeighbour] = CellState.Miss;
-			}
+			foreach (var diagonalNeighbour in Map.Diagonals(cell))
+					Map[diagonalNeighbour] = CellState.Miss;
 
 			foreach (var woundedNeighbour in WoundedNeighbours(cell))
 				LeadRoundDeadShip(woundedNeighbour);
-		}
-
-		private Vector WoundedNeighbour(Vector cell)
-		{
-			return WoundedNeighbours(cell).First();
-		}
-
-		private IEnumerable<Vector> EmptyNeighbours(Vector cell)
-		{
-			return Map.Neighbours(cell).Where(neighbour => Map[neighbour] == CellState.Eempty);
 		}
 
 		private Vector ChoiseNextEmptyCell()
@@ -97,19 +81,29 @@ namespace ai_Dubinin_Roman
 			return nextCell;
 		}
 
-		private IEnumerable<Vector> WoundedNeighbours(Vector cell)
-		{
-			return Map.Neighbours(cell).Where(neighbour => CellIsWounded(neighbour));
-		}
-
 		private Vector DifferenceVector(Vector firstVector, Vector secondVector)
 		{
 			return firstVector.Sub(secondVector);
 		}
 
-		private bool CellIsWounded(Vector neighbour)
+		private IEnumerable<Vector> EmptyNeighbours(Vector cell)
 		{
-			return Map[neighbour] == CellState.Wounded;
+			return Map.Neighbours(cell).Where(CellIsEmpty);
+		}
+
+		private IEnumerable<Vector> WoundedNeighbours(Vector cell)
+		{
+			return Map.Neighbours(cell).Where(CellIsWounded);
+		}
+
+		private bool CellIsEmpty(Vector cell)
+		{
+			return Map[cell] == CellState.Eempty;
+		}
+
+		private bool CellIsWounded(Vector cell)
+		{
+			return Map[cell] == CellState.Wounded;
 		}
 	}
 }

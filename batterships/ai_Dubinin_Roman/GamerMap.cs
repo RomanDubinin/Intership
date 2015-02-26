@@ -49,6 +49,14 @@ namespace ai_Dubinin_Roman
 				.Where(InMapBounds);
 		}
 
+		public IEnumerable<Vector> Diagonals(Vector cell)
+		{
+			return
+				new[] { new Vector(-1, -1), new Vector(-1, 1), new Vector(1, 1), new Vector(1, -1) }
+				.Select(cell.Add)
+				.Where(InMapBounds);
+		}
+
 		public bool InMapBounds(Vector p)
 		{
 			return p.X >= 0 &&
