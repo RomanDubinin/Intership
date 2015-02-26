@@ -46,7 +46,6 @@ namespace ai_Dubinin_Roman
 			return
 				from v in new[] { new Vector(0, -1), new Vector(-1, 0), new Vector(0, 1), new Vector(1, 0) }
 				let c = cell.Add(v)
-				where !Equals(c, cell)
 				where InMapBounds(c)
 				select c;
 		}

@@ -74,7 +74,12 @@ namespace ai_Dubinin_Roman
 
 		private Vector ChoiseNextEmptyCell()
 		{
-			return new Vector(Random.Next(Map.MapWidth), Random.Next(Map.MapHeight));
+			var nextCell = new Vector(Random.Next(Map.MapWidth), Random.Next(Map.MapHeight));
+			while (Map[nextCell] != CellState.Eempty)
+			{
+				nextCell = new Vector(Random.Next(Map.MapWidth), Random.Next(Map.MapHeight));
+			}
+			return nextCell;
 		}
 
 		private IEnumerable<Vector> WoundedNeighbours(Vector cell)
