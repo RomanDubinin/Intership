@@ -145,17 +145,17 @@ namespace battleships
 				}
 		}
 
-		public bool InMapBounds(Vector p)
+		public bool InMapBounds(Vector point)
 		{
-			return p.X >= 0 && 
-				   p.X < MapWidth && 
-				   p.Y >= 0 && 
-				   p.Y < MapHeight;
+			return point.X >= 0 && 
+				   point.X < MapWidth && 
+				   point.Y >= 0 && 
+				   point.Y < MapHeight;
 		}
 
 		public bool HasAliveShips()
 		{
-			return Ships.Any(s => s.IsAlive);
+			return Ships.Any(ship => ship.IsAlive);
 		}
 	}
 }
