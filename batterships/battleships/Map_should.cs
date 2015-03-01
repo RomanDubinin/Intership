@@ -26,7 +26,7 @@ namespace battleships
 		{
 			var map = new Map(100, 10);
 			map.Set(new Vector(0, 0), 1, true);
-			Assert.AreEqual(ShotEffect.Kill, map.Badaboom(new Vector(0, 0)));
+			Assert.AreEqual(ShotEffect.Kill, map.Shot(new Vector(0, 0)));
 			Assert.AreEqual(CellState.DeadOrWoundedShip, map[new Vector(0, 0)]);
 		}
 
@@ -35,7 +35,7 @@ namespace battleships
 		{
 			var map = new Map(100, 10);
 			map.Set(new Vector(0, 0), 2, true);
-			Assert.AreEqual(ShotEffect.Wound, map.Badaboom(new Vector(0, 0)));
+			Assert.AreEqual(ShotEffect.Wound, map.Shot(new Vector(0, 0)));
 			Assert.AreEqual(CellState.DeadOrWoundedShip, map[new Vector(0, 0)]);
 			Assert.AreEqual(CellState.Ship, map[new Vector(1, 0)]);
 		}

@@ -42,7 +42,7 @@ namespace battleships
 			if (IsOver()) throw new InvalidOperationException("Game is Over");
 			if (!UpdateLastTarget()) return;
 			if (IsBadShot(LastTarget)) BadShots++;
-			var hit = Map.Badaboom(LastTarget);
+			var hit = Map.Shot(LastTarget);
 			LastShotInfo = new ShotInfo {Target = LastTarget, Hit = hit};
 			if (hit == ShotEffect.Miss)
 				TurnsCount++;
@@ -53,7 +53,7 @@ namespace battleships
 			try
 			{
 				LastTarget = LastTarget == null
-					? ai.Init(Map.MapWidth, Map.MapHeight, Map.Ships.Select(s => s.ShipSize).ToArray())
+					? ai.Init(Map.MapWidth, Map.MapHeight, Map.Ships.Select(s => s.Size).ToArray())
 					: ai.GetNextShot(LastShotInfo.Target, LastShotInfo.Hit);
 				return true;
 			}

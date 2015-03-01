@@ -24,27 +24,26 @@ namespace battleships
 
 	public class Ship
 	{
-		public Vector ShipLocation { get; private set; }
-		public int ShipSize { get; private set; }
+		public Vector Location { get; private set; }
+		public int Size { get; private set; }
 		public bool DirectionIsHorizont { get; private set; }
 		public HashSet<Vector> AliveCells { get; private set; }
 		
-		public Ship(Vector shipLocation, int shipSize, bool directionIsHorizont)
+		public Ship(Vector location, int size, bool directionIsHorizont)
 		{
-			ShipLocation = shipLocation;
-			ShipSize = shipSize;
+			Location = location;
+			Size = size;
 			DirectionIsHorizont = directionIsHorizont;
 			AliveCells = new HashSet<Vector>(GetShipCells());
 		}
 
-		//todo
 		public List<Vector> GetShipCells()
 		{
 			var shipDirectionVector = DirectionIsHorizont ? new Vector(1, 0) : new Vector(0, 1);
 			var shipCells = new List<Vector>();
-			for (var i = 0; i < ShipSize; i++)
+			for (var i = 0; i < Size; i++)
 			{
-				var shipCell = shipDirectionVector.Mult(i).Add(ShipLocation);
+				var shipCell = shipDirectionVector.Mult(i).Add(Location);
 				shipCells.Add(shipCell);
 			}
 			return shipCells;
@@ -60,8 +59,8 @@ namespace battleships
 
 	public class Map
 	{
-		private static CellState[,] StatesMap;
-		public static Ship[,] ShipsMap;
+		private readonly CellState[,] StatesMap;
+		public Ship[,] ShipsMap;
 		public List<Ship> Ships = new List<Ship>();
 		public int MapWidth { get; private set; }
 		public int MapHeight { get; private set; }
@@ -79,13 +78,13 @@ namespace battleships
 			get
 			{
 				if (!InMapBounds(p))
-					throw new IndexOutOfRangeException(p + " is not in the map borders");
+					throw new IndexOutOfRangeException(string.Format("{0} is not in the map borders", p));
 				return StatesMap[p.X, p.Y];
 			}
 			private set
 			{
 				if (!InMapBounds(p))
-					throw new IndexOutOfRangeException(p + " is not in the map borders");
+					throw new IndexOutOfRangeException(string.Format("{0} is not in the map borders", p));
 				StatesMap[p.X, p.Y] = value;
 			}
 		}
@@ -111,16 +110,16 @@ namespace battleships
 		{
 			var shipCells = ship.GetShipCells();
 
-			if (shipCells.SelectMany(Neighbours).Any(c => this[c] != CellState.Empty))
-				return false;
-
 			if (!shipCells.All(InMapBounds))
+				return false;
+			
+			if (shipCells.SelectMany(Neighbours).Any(c => this[c] != CellState.Empty))
 				return false;
 
 			return true;
 		}
 
-		public ShotEffect Badaboom(Vector target)
+		public ShotEffect Shot(Vector target)
 		{
 			if (this[target] == CellState.Ship)
 			{
@@ -138,12 +137,12 @@ namespace battleships
 
 		public IEnumerable<Vector> Neighbours(Vector cell)
 		{
-			return
-				from x in new[] {-1, 0, 1} 
-				from y in new[] {-1, 0, 1} 
-				let c = cell.Add(new Vector(x, y))
-				where InMapBounds(c)
-				select c;
+			foreach (var x in new[] {-1, 0, 1})
+				foreach (var y in new[] {-1, 0, 1})
+				{
+					var c = cell.Add(new Vector(x, y));
+					if (InMapBounds(c)) yield return c;
+				}
 		}
 
 		public bool InMapBounds(Vector p)
