@@ -98,16 +98,16 @@ namespace ai_Dubinin_Roman
 
 				CurrentY = 0;
 			}
-			return new Vector(0, 0);
+			throw new Exception("There are no more empty cells");
 		}
 
 		private Vector ChoiseNextEmptyCellRandom()
 		{
 			var nextCell = new Vector(Random.Next(Map.MapWidth), Random.Next(Map.MapHeight));
+
 			while (Map[nextCell] != CellState.Eempty)
-			{
 				nextCell = new Vector(Random.Next(Map.MapWidth), Random.Next(Map.MapHeight));
-			}
+
 			return nextCell;
 		}
 

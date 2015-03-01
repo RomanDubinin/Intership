@@ -12,6 +12,7 @@ namespace ai_Dubinin_Roman
 		Wounded,
 		Dead
 	}
+
 	class GamerMap
 	{
 		private static CellState[,] StatesMap;
@@ -30,13 +31,13 @@ namespace ai_Dubinin_Roman
 			get
 			{
 				if (!InMapBounds(p))
-					throw new IndexOutOfRangeException(p + " is not in the map borders");
+					throw new IndexOutOfRangeException(string.Format("{0} is not in the map borders", p));
 				return StatesMap[p.X, p.Y];
 			}
 			set
 			{
 				if (!InMapBounds(p))
-					throw new IndexOutOfRangeException(p + " is not in the map borders");
+					throw new IndexOutOfRangeException(string.Format("{0} is not in the map borders", p));
 				StatesMap[p.X, p.Y] = value;
 			}
 		}
@@ -57,12 +58,12 @@ namespace ai_Dubinin_Roman
 				.Where(InMapBounds);
 		}
 
-		public bool InMapBounds(Vector p)
+		public bool InMapBounds(Vector cell)
 		{
-			return p.X >= 0 &&
-				   p.X < MapWidth &&
-				   p.Y >= 0 &&
-				   p.Y < MapHeight;
+			return cell.X >= 0 &&
+				   cell.X < MapWidth &&
+				   cell.Y >= 0 &&
+				   cell.Y < MapHeight;
 		}
 
 

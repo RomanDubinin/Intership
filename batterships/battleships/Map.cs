@@ -145,12 +145,12 @@ namespace battleships
 				}
 		}
 
-		public bool InMapBounds(Vector point)
+		public bool InMapBounds(Vector cell)
 		{
-			return point.X >= 0 && 
-				   point.X < MapWidth && 
-				   point.Y >= 0 && 
-				   point.Y < MapHeight;
+			return cell.X >= 0 && 
+				   cell.X < MapWidth && 
+				   cell.Y >= 0 && 
+				   cell.Y < MapHeight;
 		}
 
 		public bool HasAliveShips()

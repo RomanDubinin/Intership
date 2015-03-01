@@ -6,25 +6,15 @@ namespace ai_Dubinin_Roman
 {
 	class Program
 	{
-		// line имеет один из следующих форматов:
-		// Init <map_width> <map_height> <ship1_size> <ship2_size> ...
-		// Wound <last_shot_X> <last_shot_Y>
-		// Kill <last_shot_X> <last_shot_Y>
-		// Miss <last_shot_X> <last_shot_Y>
-		// Один экземпляр вашей программы может быть использван для проведения нескольких игр подряд.
-		// Сообщение Init сигнализирует о том, что началась новая игра.
-
 		static void Main()
 		{
-			var gameData = GetGameData();
+			var gameData = GameData();
 			var gamer = InitGamer(gameData);
-			Vector lastCell;
-			Vector nextCell;
 
-			nextCell = gamer.GetNextCell();
+			var nextCell = gamer.GetNextCell();
 			DoShot(nextCell.X, nextCell.Y);
 
-			gameData = GetGameData();
+			gameData = GameData();
 			while (gameData != null)
 			{
 				
@@ -36,37 +26,37 @@ namespace ai_Dubinin_Roman
 				else
 				{
 					var lastEffect = ShotResult(gameData);
-					lastCell = ShotCell(gameData);
+					var lastCell = GetCell(gameData);
 					nextCell = gamer.GetNextCell(lastCell, lastEffect);
 				}
 				DoShot(nextCell.X, nextCell.Y);
 
-				gameData = GetGameData();
+				gameData = GameData();
 			}
 		}
 
 		private static bool IsInitString(string gameData)
 		{
-			return gameData.Split(' ').First().CompareTo("Init") == 0;
+			return String.Compare(gameData.Split(' ').First(), "Init", StringComparison.Ordinal) == 0;
 		}
 
-		private static Vector ShotCell(string gameData)
+		private static Vector GetCell(string lastShotData)
 		{
-			var shotParams = gameData.Split(' ');
+			var shotParams = lastShotData.Split(' ');
 			var width = int.Parse(shotParams[1]);
 			var height = int.Parse(shotParams[2]);
 			return new Vector(width, height);
 		}
 
-		private static BattleshipGamer InitGamer(string gameData)
+		private static BattleshipGamer InitGamer(string lastShotData)
 		{
-			var gameParams = gameData.Split(' ');
+			var gameParams = lastShotData.Split(' ');
 			var width = int.Parse(gameParams[1]);
 			var height = int.Parse(gameParams[2]);
 			return new BattleshipGamer(width, height);
 		}
 
-		private static string GetGameData()
+		private static string GameData()
 		{
 			return Console.ReadLine();
 		}
@@ -76,9 +66,9 @@ namespace ai_Dubinin_Roman
 			Console.WriteLine("{0} {1}", x, y);
 		}
 
-		private static ShotEffect ShotResult(string data)
+		private static ShotEffect ShotResult(string lastShotData)
 		{
-			var effestName = data.Split(' ').First();
+			var effestName = lastShotData.Split(' ').First();
 			return (ShotEffect)Enum.Parse(typeof(ShotEffect), effestName);
 		}
 
