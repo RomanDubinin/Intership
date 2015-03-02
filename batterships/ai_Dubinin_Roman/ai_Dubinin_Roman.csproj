@@ -41,9 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BattleshipGamer.cs" />
-    <Compile Include="GamerMap.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="ai_Dubinin_Roman.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
